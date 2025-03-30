@@ -19,22 +19,20 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
 
     private var offset = 0
     private var aptoParaCargar = true
+    private var posicionActual: Int = 0  // Nueva variable para guardar la posición
 
     companion object {
         private const val TAG = "POKEDEX"
     }
 
-    @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // Relaciones
         recyclerView = findViewById(R.id.recyclerView)
         buscar = findViewById(R.id.buscar)
         buscar.setOnQueryTextListener(this)
 
-        // Configuración del RecyclerView
         listaPokemonAdapter = ListaPokemonAdapter(this)
         recyclerView.adapter = listaPokemonAdapter
         recyclerView.setHasFixedSize(true)
@@ -59,7 +57,6 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
             }
         })
 
-        // Configuración de Retrofit
         retrofit = Retrofit.Builder()
             .baseUrl("https://pokeapi.co/api/v2/")
             .addConverterFactory(GsonConverterFactory.create())
@@ -68,7 +65,16 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
         obtenerDatos(offset)
     }
 
-    // Método para obtener la lista de Pokémon
+    override fun onPause() {
+        super.onPause()
+        posicionActual = (recyclerView.layoutManager as GridLayoutManager).findFirstVisibleItemPosition()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        recyclerView.layoutManager?.scrollToPosition(posicionActual)
+    }
+
     private fun obtenerDatos(offset: Int) {
         val service = retrofit.create(PokeapiService::class.java)
         val pokemonRespuestaCall = service.obtenerListaPokemon(20, offset)
@@ -100,3 +106,4 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
         return false
     }
 }
+

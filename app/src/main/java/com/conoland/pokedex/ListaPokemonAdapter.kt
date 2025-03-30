@@ -42,7 +42,7 @@ class ListaPokemonAdapter(private val context: Context) :
         holder.order = p.number
 
         Glide.with(holder.foto.context) // 💡 Debe ser el contexto de la vista donde se carga la imagen
-            .load("https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.number}.png")
+            .load("https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/${p.number}.gif")
             .centerCrop()
             .diskCacheStrategy(DiskCacheStrategy.ALL)
             .into(holder.foto)
@@ -88,18 +88,23 @@ class ListaPokemonAdapter(private val context: Context) :
         init {
             foto.setOnClickListener {
                 val parentActivity = context as Activity
-                val adapter = Detalles_PojkemonAdapter(context, this@ListaPokemonAdapter)
+                val recyclerView = parentActivity.findViewById<RecyclerView>(R.id.recyclerView)
+                val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+                val posicionActual = layoutManager.findFirstVisibleItemPosition()
+                val prefs = context.getSharedPreferences("PokedexPrefs", Context.MODE_PRIVATE)
+                prefs.edit().putInt("posicion_lista", posicionActual).apply()
+
+                val adapter = DetallesPokemonAdapter(context, this@ListaPokemonAdapter)
                 datosPokemon(adapter, order)
 
                 parentActivity.findViewById<View>(R.id.buscar).visibility = View.GONE
-                val recyclerView = parentActivity.findViewById<RecyclerView>(R.id.recyclerView)
                 recyclerView.layoutManager = LinearLayoutManager(context)
                 recyclerView.adapter = adapter
             }
         }
     }
 
-    private fun datosPokemon(adapter: Detalles_PojkemonAdapter, pokemonNum: Int) {
+    private fun datosPokemon(adapter: DetallesPokemonAdapter, pokemonNum: Int) {
         val retrofit = Retrofit.Builder()
             .baseUrl("https://pokeapi.co/api/v2/")
             .addConverterFactory(GsonConverterFactory.create())

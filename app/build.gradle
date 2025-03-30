@@ -33,6 +33,10 @@ android {
         jvmTarget = "17"
     }
 
+    viewBinding {
+        enabled = true
+    }
+
     namespace 'com.conoland.pokedex'
 }
 
